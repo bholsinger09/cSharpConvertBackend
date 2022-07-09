@@ -1,9 +1,23 @@
+
+var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy  =>
+                      {
+                          policy.WithOrigins("http://example.com",
+                                              "http://www.contoso.com");
+                      });
+});
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -13,10 +27,20 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+// services.AddResponseCaching();
+
+builder.Services.AddControllers();
+
+var app = builder.Build();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 
