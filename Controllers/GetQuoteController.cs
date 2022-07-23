@@ -5,8 +5,7 @@ using System;
 
 
 
-using (SqlConnection connection = new SqlConnection(  
-  "Integrated Security=SSPI;Initial Catalog=Northwind"))  
+using (SqlConnection connection = new SqlConnection())  
     {  
         connection.Open();
         var Server=myServerAddress;
