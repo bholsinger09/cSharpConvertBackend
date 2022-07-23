@@ -1,20 +1,67 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MvcMovie.Models;
-using System;
+﻿using MySql.Data;
+using MySql.Data.MySqlClient;
 
+namespace Data
+{
+    public class DBConnection
+    {
+        private DBConnection()
+        {
+        }
 
+        public string Server { get; set; }
+        public string DatabaseName { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
 
+        private MySqlConnection Connection { get; set;}
 
-using (SqlConnection connection = new SqlConnection())  
-    {  
-        connection.Open();
-        var Server=myServerAddress;
-        var Database=myDataBase;
-        var Uid=myUsername;
-        var Pwd=myPassword;
-        
-    } 
+        private static DBConnection _instance = null;
+        public static DBConnection Instance()
+        {
+            if (_instance == null)
+                _instance = new DBConnection();
+           return _instance;
+        }
+    
+        public bool IsConnect()
+        {
+            if (Connection == null)
+            {
+                if (String.IsNullOrEmpty(databaseName))
+                    return false;
+                string connstring = string.Format("Server={0}; database={1}; UID={2}; password={3}", Server, DatabaseName, UserName, Password);
+                Connection = new MySqlConnection(connstring);
+                Connection.Open();
+            }
+    
+            return true;
+        }
+    
+        public void Close()
+        {
+            Connection.Close();
+        }        
+    }
+}
 
-
-
+var dbCon = DBConnection.Instance();
+dbCon.Server = "YourServer";
+dbCon.DatabaseName = "YourDatabase";
+dbCon.UserName = "YourUsername";
+dbCon.Password = "YourPassword";
+if (dbCon.IsConnect())
+{
+    //suppose col0 and col1 are defined as VARCHAR in the DB
+    string query = "SELECT col0,col1 FROM YourTable";
+    var cmd = new MySqlCommand(query, dbCon.Connection);
+    var reader = cmd.ExecuteReader();
+    while(reader.Read())
+    {
+        string someStringFromColumnZero = reader.GetString(0);
+        string someStringFromColumnOne = reader.GetString(1);
+        Console.WriteLine(someStringFromColumnZero + "," + someStringFromColumnOne);
+    }
+    dbCon.Close();
+}
 
